@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use \App\Models\Currency as Currency;
+use \App\Models\Coin as Coin;
+use \App\Models\Course as Course;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,5 +17,23 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
+})->name('home');
+
+Route::get('/Course/{CoinName}/{CurrencyName}', function ($CoinName, $CurrencyName) {
+
+    $Coin = Coin::where('ShortName', $CoinName)->first();
+    if(!$Coin)
+        return "Coin `{$CoinName}` not found.";
+
+    $Currency = Currency::where('ShortName', $CurrencyName)->first();
+    if(!$Currency)
+        return "Currency `{$CurrencyName}` not found.";
+        
+    $Course = Course::GetFor($Coin->Id, $Currency->Id);
+
+    if(!$Course)
+        return "Course `{$Coin->Name}->{$Currency->Name}` not found.";
+
+    return view('Course-test', ['Course' => $Course, 'Coin' => $Coin, 'Currency' => $Currency]);
 });
